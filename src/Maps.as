@@ -5,10 +5,11 @@ void LoadMapNow(const string &in url, const string &in mode = "", const string &
         return;
     }
     // change the menu page to avoid main menu bug where 3d scene not redrawn correctly (which can lead to a script error and `recovery restart...`)
-    MM::setMenuPage("/local");
-    yield();
     auto app = cast<CGameManiaPlanet>(GetApp());
     app.BackToMainMenu();
+    yield();
+    MM::setMenuPage("/local");
+    yield();
     while (!app.ManiaTitleControlScriptAPI.IsReady) yield();
     app.ManiaTitleControlScriptAPI.PlayMap(url, mode, settingsXml);
 }
