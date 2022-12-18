@@ -152,7 +152,7 @@ void DrawMapLog() {
     if (UI::BeginTable("play map log", 2, UI::TableFlags::SizingStretchProp)) {
         UI::TableSetupColumn("URL", UI::TableColumnFlags::WidthStretch);
         UI::TableSetupColumn("", UI::TableColumnFlags::WidthFixed);
-        for (uint i = 0; i < mapLog.Length; i++) {
+        for (int i = int(mapLog.Length) - 1; i >= 0; i--) {
             UI::TableNextRow();
             UI::TableNextColumn();
             UI::AlignTextToFramePadding();
