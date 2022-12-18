@@ -1,6 +1,6 @@
 # Play Map
 
-Simple, light-weight interface around the Trackmania's `PlayMap` call.
+Simple, light-weight interface around the Trackmania's `PlayMap` call to load maps directly from a URL or TMX TrackID.
 
 License: Public Domain
 
