@@ -1,4 +1,7 @@
+bool UserHasPermissions = false;
+
 void Main() {
+    UserHasPermissions = Permissions::PlayLocalMap();
     startnew(MainCoro);
 }
 
@@ -54,9 +57,13 @@ void Render() {
         UI::AlignTextToFramePadding();
         UI::Text("Play a Map");
         UI::Separator();
-        DrawMapInputTypes();
-        UI::Separator();
-        DrawMapLog();
+        if (UserHasPermissions) {
+            DrawMapInputTypes();
+            UI::Separator();
+            DrawMapLog();
+        } else {
+            UI::TextWrapped("\\$fe1Sorry, you don't appear to have permissions to play local maps.");
+        }
     }
     UI::End();
     UI::PopStyleColor();
