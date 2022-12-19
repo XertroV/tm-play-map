@@ -14,6 +14,20 @@ void LoadMapNow(const string &in url, const string &in mode = "", const string &
     app.ManiaTitleControlScriptAPI.PlayMap(url, mode, settingsXml);
 }
 
+void EditMapNow(const string &in url) {
+    if (!Permissions::OpenAdvancedMapEditor()) {
+        NotifyError("Refusing to load the map editor because you lack the necessary permissions.");
+        return;
+    }
+    auto app = cast<CGameManiaPlanet>(GetApp());
+    app.BackToMainMenu();
+    yield();
+    MM::setMenuPage("/create");
+    yield();
+    while (!app.ManiaTitleControlScriptAPI.IsReady) yield();
+    app.ManiaTitleControlScriptAPI.EditMap(url, "", "");
+}
+
 void ReturnToMenu(bool yieldTillReady = false) {
     auto app = cast<CGameManiaPlanet>(GetApp());
     app.BackToMainMenu();

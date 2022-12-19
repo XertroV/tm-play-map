@@ -47,7 +47,7 @@ bool m_UseTmxMirror = false;
 /** Render function called every frame.
 */
 void Render() {
-    if (!ShowWindow || CurrentlyInMap) return;
+    if (!ShowWindow || CurrentlyInMap || GetApp().Editor !is null) return;
     vec2 size = vec2(450, 300);
     vec2 pos = (vec2(Draw::GetWidth(), Draw::GetHeight()) - size) / 2.;
     UI::SetNextWindowSize(int(size.x), int(size.y), UI::Cond::FirstUseEver);
@@ -55,7 +55,7 @@ void Render() {
     UI::PushStyleColor(UI::Col::FrameBg, vec4(.2, .2, .2, .5));
     if (UI::Begin(MenuTitle, ShowWindow)) {
         UI::AlignTextToFramePadding();
-        UI::Text("Play a Map");
+        UI::Text(selectedTab != Tab::Editor ? "Play a Map" : "Open in Editor");
         UI::Separator();
         if (UserHasPermissions) {
             DrawMapInputTypes();
@@ -71,7 +71,8 @@ void Render() {
 
 enum Tab {
     URL,
-    TMX
+    TMX,
+    Editor
 }
 
 Tab selectedTab = Tab::URL;
@@ -87,6 +88,7 @@ void DrawMapInputTypes() {
     UI::BeginTabBar("map input types");
 
     if (UI::BeginTabItem("URL")) {
+        selectedTab = Tab::URL;
         UI::AlignTextToFramePadding();
         UI::Text("URL:");
         UI::SameLine();
@@ -100,6 +102,7 @@ void DrawMapInputTypes() {
     }
 
     if (UI::BeginTabItem("TMX")) {
+        selectedTab = Tab::TMX;
         UI::AlignTextToFramePadding();
         UI::Text("Track ID:");
         UI::SameLine();
@@ -121,6 +124,7 @@ void DrawMapInputTypes() {
     }
 
     if (UI::BeginTabItem("Game Mode Settings")) {
+        selectedTab = Tab::URL;
         UI::AlignTextToFramePadding();
         UI::Text("Mode:");
         UI::SameLine();
@@ -131,6 +135,20 @@ void DrawMapInputTypes() {
                 }
             }
             UI::EndCombo();
+        }
+        UI::EndTabItem();
+    }
+
+    if (UI::BeginTabItem("Editor")) {
+        selectedTab = Tab::Editor;
+        UI::AlignTextToFramePadding();
+        UI::Text("URL:");
+        UI::SameLine();
+        bool pressedEnter = false;
+        m_URL = UI::InputText("##map-url", m_URL, pressedEnter, UI::InputTextFlags::EnterReturnsTrue);
+        UI::SameLine();
+        if (UI::Button("Edit Map##main-btn") || pressedEnter) {
+            startnew(OnEditMapNow);
         }
         UI::EndTabItem();
     }
@@ -149,6 +167,13 @@ void OnLoadMapNow() {
     m_URL = "";
     mapLog.InsertLast(url);
     LoadMapNow(url, selectedMode);
+}
+
+void OnEditMapNow() {
+    string url = m_URL;
+    m_URL = "";
+    mapLog.InsertLast(url);
+    EditMapNow(url);
 }
 
 string[] mapLog;
