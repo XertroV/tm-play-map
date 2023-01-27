@@ -3,6 +3,7 @@ bool UserHasPermissions = false;
 void Main() {
     UserHasPermissions = Permissions::PlayLocalMap();
     startnew(MainCoro);
+    startnew(CheckIfCustomModeExists);
 }
 
 void MainCoro() {
@@ -44,18 +45,28 @@ string m_URL;
 string m_TMX;
 bool m_UseTmxMirror = false;
 
+
+// todo: better rendering rules
+// interface on + in map
+// interface on + not in map
+// interface off outside map?
+
 /** Render function called every frame.
 */
 void Render() {
-    if (!ShowWindow || CurrentlyInMap || GetApp().Editor !is null) return;
+    if (!ShowWindow || (S_HideInMap && (CurrentlyInMap || GetApp().Editor !is null))) return;
     vec2 size = vec2(450, 300);
     vec2 pos = (vec2(Draw::GetWidth(), Draw::GetHeight()) - size) / 2.;
     UI::SetNextWindowSize(int(size.x), int(size.y), UI::Cond::FirstUseEver);
     UI::SetNextWindowPos(int(pos.x), int(pos.y), UI::Cond::FirstUseEver);
     UI::PushStyleColor(UI::Col::FrameBg, vec4(.2, .2, .2, .5));
     if (UI::Begin(MenuTitle, ShowWindow)) {
+        UI::Columns(2, "title-settings", false);
         UI::AlignTextToFramePadding();
         UI::Text(selectedTab != Tab::Editor ? "Play a Map" : "Open in Editor");
+        UI::NextColumn();
+        S_HideInMap = UI::Checkbox("Hide window when in-map?", S_HideInMap);
+        UI::Columns(1);
         UI::Separator();
         if (UserHasPermissions) {
             DrawMapInputTypes();
@@ -77,11 +88,16 @@ enum Tab {
 
 Tab selectedTab = Tab::URL;
 
+const string CustomGameModeLabel = "Custom Game Mode";
+
 string[] allModes = {
     "TrackMania/TM_PlayMap_Local",
-    "TrackMania/TM_Campaign_Local"
+    "TrackMania/TM_Campaign_Local",
+    CustomGameModeLabel
+    // "TrackMania/asdf"
 };
 
+[Setting hidden]
 string selectedMode = allModes[0];
 
 void DrawMapInputTypes() {
@@ -136,6 +152,20 @@ void DrawMapInputTypes() {
             }
             UI::EndCombo();
         }
+        if (selectedMode == CustomGameModeLabel) {
+            UI::Separator();
+            UI::TextWrapped("\\$bbbPath to script; relative to Documents\\Trackmania\\Scripts\\Modes.");
+            bool changed;
+            S_CustomGameMode = UI::InputText("Mode", S_CustomGameMode, changed);
+            if (changed) startnew(CheckIfCustomModeExists);
+            if (S_CustomGameMode.Length > 0) {
+                if (_customModeExists) {
+                    UI::TextWrapped("\\$8b8Found \\$888Scripts\\Modes\\" + S_CustomGameMode + ".Script.txt");
+                } else {
+                    UI::TextWrapped("\\$888No " + S_CustomGameMode + ".Script.txt found in Documents\\Trackmania\\Scripts\\Modes.");
+                }
+            }
+        }
         UI::EndTabItem();
     }
 
@@ -155,6 +185,25 @@ void DrawMapInputTypes() {
     UI::EndTabBar();
 }
 
+
+bool _customModeExists = false;
+void CheckIfCustomModeExists() {
+    if (S_CustomGameMode.Length == 0) {
+        _customModeExists = false;
+        return;
+    }
+    if (S_CustomGameMode.ToLower().EndsWith(".script.txt")) {
+        S_CustomGameMode = S_CustomGameMode.SubStr(0, S_CustomGameMode.Length - 11);
+    }
+    _customModeExists = IO::FileExists(CustomModePath());
+    Notify("checked " + Time::Now);
+}
+
+string CustomModePath() {
+    return IO::FromUserGameFolder("Scripts/Modes/" + S_CustomGameMode + ".Script.txt");
+}
+
+
 string tmxIdToUrl(const string &in id) {
     if (m_UseTmxMirror) {
         return "https://cgf.s3.nl-1.wasabisys.com/" + id + ".Map.Gbx";
@@ -166,7 +215,8 @@ void OnLoadMapNow() {
     string url = m_URL;
     m_URL = "";
     mapLog.InsertLast(url);
-    LoadMapNow(url, selectedMode);
+    bool isCustom = selectedMode == CustomGameModeLabel;
+    LoadMapNow(url, !isCustom ? selectedMode : S_CustomGameMode + ".Script.txt");
 }
 
 void OnEditMapNow() {
@@ -197,9 +247,6 @@ void DrawMapLog() {
         UI::EndTable();
     }
 }
-
-
-
 
 
 
