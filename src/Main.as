@@ -196,7 +196,6 @@ void CheckIfCustomModeExists() {
         S_CustomGameMode = S_CustomGameMode.SubStr(0, S_CustomGameMode.Length - 11);
     }
     _customModeExists = IO::FileExists(CustomModePath());
-    Notify("checked " + Time::Now);
 }
 
 string CustomModePath() {
