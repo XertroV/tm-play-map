@@ -112,6 +112,9 @@ void DrawMapInputTypes() {
         m_URL = UI::InputText("##map-url", m_URL, pressedEnter, UI::InputTextFlags::EnterReturnsTrue);
         UI::SameLine();
         if (UI::Button("Play Map##main-btn") || pressedEnter) {
+            if (Regex::IsMatch(m_URL, "[0-9]{5,6}")) {
+                m_URL = tmxIdToUrl(m_URL);
+            }
             startnew(OnLoadMapNow);
         }
         UI::EndTabItem();
