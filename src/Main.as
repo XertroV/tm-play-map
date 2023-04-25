@@ -229,7 +229,7 @@ string GetIdFromUrl(const string &in prefix, const string &in url) {
     if (!prefix.EndsWith("/")) {
         throw('bad url prefix, needs trailing `/`: ' + prefix);
     }
-    if (url.StartsWith(prefix)) {
+    if (url.ToLower().StartsWith(prefix)) {
         trace('found url prefix: ' + prefix);
         return url.SubStr(prefix.Length).Split('/')[0];
     }
@@ -240,8 +240,8 @@ string ExtractTmxIdFromURL(const string &in url) {
     return GetIdFromUrl(tmxView,
         GetIdFromUrl(tmxViewShort,
         GetIdFromUrl(tmxMaps,
-        GetIdFromUrl(tmxMapsDownload, url.Trim().ToLower())
-        )));
+        GetIdFromUrl(tmxMapsDownload, url.Trim())
+    )));
 }
 
 
