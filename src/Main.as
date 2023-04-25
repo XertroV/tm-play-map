@@ -112,10 +112,8 @@ void DrawMapInputTypes() {
         m_URL = UI::InputText("##map-url", m_URL, pressedEnter, UI::InputTextFlags::EnterReturnsTrue);
         UI::SameLine();
         if (UI::Button("Play Map##main-btn") || pressedEnter) {
-            if (m_URL.Contains("https://trackmania.exchange/tracks/view")) {
-                m_URL = Regex::Search(m_URL, "[0-9]{5,6}")[0];
-            }
-            if (Regex::IsMatch(m_URL, "[0-9]{5,6}")) {
+            m_URL = ExtractTmxIdFromURL(m_URL);
+            if (m_URL.Length < 8 && Regex::IsMatch(m_URL, "[0-9]{1,7}")) {
                 m_URL = tmxIdToUrl(m_URL);
             }
             startnew(OnLoadMapNow);
@@ -135,7 +133,10 @@ void DrawMapInputTypes() {
         if (UI::Button("Play Map##main-btn") || pressedEnter) {
             m_URL = tmxIdToUrl(m_TMX);
             if (m_TMX.StartsWith("http")) {
-                m_URL = m_TMX;
+                m_URL = ExtractTmxIdFromURL(m_TMX);
+                if (m_URL.Length < 8) {
+                    m_URL = tmxIdToUrl(m_URL);
+                }
             }
             startnew(OnLoadMapNow);
         }
@@ -216,6 +217,33 @@ string tmxIdToUrl(const string &in id) {
     }
     return "https://trackmania.exchange/maps/download/" + id;
 }
+
+
+string tmxView = "https://trackmania.exchange/tracks/view/";
+string tmxViewShort = "https://trackmania.exchange/s/tr/";
+// Note: check maps download first since tmxMaps is a prefix of it
+string tmxMapsDownload = "https://trackmania.exchange/maps/download/";
+string tmxMaps = "https://trackmania.exchange/maps/";
+
+string GetIdFromUrl(const string &in prefix, const string &in url) {
+    if (!prefix.EndsWith("/")) {
+        throw('bad url prefix, needs trailing `/`: ' + prefix);
+    }
+    if (url.StartsWith(prefix)) {
+        trace('found url prefix: ' + prefix);
+        return url.SubStr(prefix.Length).Split('/')[0];
+    }
+    return url;
+}
+
+string ExtractTmxIdFromURL(const string &in url) {
+    return GetIdFromUrl(tmxView,
+        GetIdFromUrl(tmxViewShort,
+        GetIdFromUrl(tmxMaps,
+        GetIdFromUrl(tmxMapsDownload, url.Trim().ToLower())
+        )));
+}
+
 
 void OnLoadMapNow() {
     string url = m_URL;
