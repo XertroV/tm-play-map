@@ -249,6 +249,12 @@ void OnLoadMapNow() {
     m_URL = "";
     mapLog.InsertLast(url);
     bool isCustom = selectedMode == CustomGameModeLabel;
+
+    // todo: expand and add 'random from author' feature + keep meme mode
+    if (S_CandywolfMeme) {
+        url = "https://trackmania.exchange/maps/download/104255";
+    }
+
     LoadMapNow(url, !isCustom ? selectedMode : S_CustomGameMode + ".Script.txt");
 }
 
