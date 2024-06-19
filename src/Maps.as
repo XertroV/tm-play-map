@@ -36,3 +36,29 @@ bool CurrentlyInMap {
         return GetApp().RootMap !is null && GetApp().CurrentPlayground !is null;
     }
 }
+
+
+// Do not keep handles to these objects around
+CNadeoServicesMap@ GetMapFromUid(const string &in mapUid) {
+    auto app = cast<CGameManiaPlanet>(GetApp());
+    auto userId = app.MenuManager.MenuCustom_CurrentManiaApp.UserMgr.Users[0].Id;
+    auto resp = app.MenuManager.MenuCustom_CurrentManiaApp.DataFileMgr.Map_NadeoServices_GetFromUid(userId, mapUid);
+    WaitAndClearTaskLater(resp, app.MenuManager.MenuCustom_CurrentManiaApp.DataFileMgr);
+    if (resp.HasFailed || !resp.HasSucceeded) {
+        NotifyWarning("Couldn't load map info :(");
+        warn('GetMapFromUid failed: ' + resp.ErrorCode + ", " + resp.ErrorType + ", " + resp.ErrorDescription);
+        return null;
+    }
+    return resp.Map;
+}
+
+string UidToUrl(const string &in uid) {
+    auto map = GetMapFromUid(uid);
+    if (map is null) {
+        warn("Null map returned for uid " + uid);
+        return "";
+    }
+    auto url = map.FileUrl;
+    trace('UidToUrl: ' + uid + " -> " + url);
+    return url;
+}
