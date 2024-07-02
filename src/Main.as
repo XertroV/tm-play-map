@@ -122,6 +122,7 @@ const string CustomGameModeLabel = "Custom Game Mode";
 string[] allModes = {
     "TrackMania/TM_PlayMap_Local",
     "TrackMania/TM_Campaign_Local",
+    "TrackMania/TM_StuntSolo_Local",
     CustomGameModeLabel
     // "TrackMania/asdf"
 };
