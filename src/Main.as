@@ -56,7 +56,14 @@ enum LoadType {
 /** Render function called every frame.
 */
 void Render() {
-    if (!ShowWindow || (S_HideInMap && (CurrentlyInMap || GetApp().Editor !is null))) return;
+    if (
+        !ShowWindow
+        || (S_HideInMap && (CurrentlyInMap || GetApp().Editor !is null))
+        || (S_HideWithGame && !UI::IsGameUIVisible())
+        || (S_HideWithOP && !UI::IsOverlayShown())
+    )
+        return;
+
     vec2 size = vec2(450, 300);
     vec2 pos = (vec2(Draw::GetWidth(), Draw::GetHeight()) - size) / 2.;
     UI::SetNextWindowSize(int(size.x), int(size.y), UI::Cond::FirstUseEver);
