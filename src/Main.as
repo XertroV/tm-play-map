@@ -123,6 +123,7 @@ string[] allModes = {
     "TrackMania/TM_PlayMap_Local",
     "TrackMania/TM_Campaign_Local",
     "TrackMania/TM_StuntSolo_Local",
+    "TrackMania/TM_Platform_Local",
     CustomGameModeLabel
     // "TrackMania/asdf"
 };
