@@ -124,6 +124,7 @@ string[] allModes = {
     "TrackMania/TM_Campaign_Local",
     "TrackMania/TM_StuntSolo_Local",
     "TrackMania/TM_Platform_Local",
+    "TrackMania/TM_RoyalTimeAttack_Local",
     CustomGameModeLabel
     // "TrackMania/asdf"
 };
